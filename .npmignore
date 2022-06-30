@@ -1,0 +1,9 @@
+test/
+.assets/
+.github/
+.vscode/
+node_modules/
+
+README.md
+*.test.ts
+*.tgz
