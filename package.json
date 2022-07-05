@@ -8,8 +8,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "prepare": "rm -rf dist && npm run build"
-  },  
+    "prepare": "rm -rf dist && npm run build",
+    "test": "jest"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/notm1ke/vpro.git"
@@ -19,6 +20,9 @@
   },
   "homepage": "https://github.com/notm1ke/vpro#readme",
   "devDependencies": {
+    "@types/jest": "^28.1.4",
+    "jest": "^28.1.2",
+    "ts-jest": "^28.0.5",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.4"
   },

@@ -1,6 +1,5 @@
 dist/
-test/
 node_modules/
 
 *.tgz
-*.test.ts
+jest.setup.js

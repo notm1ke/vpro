@@ -1,4 +1,8 @@
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
+import https from 'https';
+
+import { isError } from './util';
+import { AxiosInstance } from 'axios';
 
 import {
     ConditionalUrlParams,
@@ -11,6 +15,10 @@ import {
     OAuthGrantPayload,
     RequireOne
 } from './types';
+
+export * from './util';
+
+// vproepg=Classrooms, noverify, upgrade, no altvproepg or novproepg
 
 export class EndpointController {
     
@@ -43,6 +51,9 @@ export class EndpointController {
     constructor(hostUrl: string, private username: string, private password: string, private debug: boolean = false) {
         this.client = axios.create({
             baseURL: `${hostUrl.endsWith('/') ? hostUrl : hostUrl + '/'}api`,
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false
+            }),
         });
     }
 
@@ -129,7 +140,7 @@ export class EndpointController {
                 // Reauthenticate if the access token has expired
                 if (err.response && err.response.status === 401) {
                     let auth = await this.authenticate(this.domainMode);
-                    if ((auth as ErrorResponse).message)
+                    if (isError(auth))
                         return null;
 
                     return this.exec<T, B>(method, url, payload);
@@ -166,13 +177,14 @@ export class EndpointController {
      * 
      * @param name the computer name of the endpoint to retrieve
      */
-    getEndpointByName = async ({ name, contains, startsWith }: RequireOne<EndpointComputerNameFilterOptions>): Promise<Endpoint | ErrorResponse> =>
-        await this.exec<Endpoint>('GET', this.buildUrlParams('/latest/endpoints',
+    getEndpointByName = async ({ name, contains, startsWith }: RequireOne<EndpointComputerNameFilterOptions>): Promise<Endpoint[] | ErrorResponse> =>
+        await this.exec<Endpoint[]>('GET', this.buildUrlParams('/latest/endpoints',
             {
                 computerName: name,
                 computerNameContains: contains,
                 computerNameStartsWith: startsWith
-            }));
+            }
+        ));
 
     /**
      * Attempts to retrieve an endpoint with a given ID.
