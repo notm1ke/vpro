@@ -12,13 +12,12 @@ import {
     EndpointHardware,
     ErrorResponse,
     HttpMethod,
+    NoopResponse,
     OAuthGrantPayload,
     RequireOne
 } from './types';
 
 export * from './util';
-
-// vproepg=Classrooms, noverify, upgrade, no altvproepg or novproepg
 
 export class EndpointController {
     
@@ -133,9 +132,15 @@ export class EndpointController {
         return url;
     }
 
-    private exec = async <T, B = any>(method: HttpMethod, url: string, payload?: B): Promise<T | null> =>
+    private exec = async <T, B = any>(method: HttpMethod, url: string, payload?: B, then?: (response: T) => any): Promise<T | ErrorResponse> =>
         await this.client.request({ method, url, data: payload })
-            .then(res => res.data && res.data as T)
+            .then(res => res.data)
+            .then(res => {
+                if (res.Message)
+                    throw new Error(res.Message);
+                return res as T;
+            })
+            .then(then)
             .catch(async err => {
                 // Reauthenticate if the access token has expired
                 if (err.response && err.response.status === 401) {
@@ -146,7 +151,15 @@ export class EndpointController {
                     return this.exec<T, B>(method, url, payload);
                 }
 
-                return null;
+                // If the error is an Axios error, return the response error body
+                if (err.response) {
+                    let data = JSON.parse(err.response.data.Message);
+                    let code = data.ExtendedCode ?? data.Code ?? err.response.status;
+                    return { code, message: data.ExtendedMessage ?? data.Message ?? err.response.statusText };
+                }
+
+                // Generic non-Axios error caused by the application
+                return { code: 500, message: err.message };
             });
 
     private log = (...args: any[]) => this.debug && console.log(...args);
@@ -162,8 +175,9 @@ export class EndpointController {
      * @param filterOptions the filter options to use when retrieving endpoints 
      */
     getEndpoints = async ({ groupId, where }: EndpointFilterOptions = {}): Promise<Endpoint[] | ErrorResponse> =>
-        await this.exec<Endpoint[]>('GET', `/latest/endpoints${groupId ? `?endpointGroupId=${groupId}` : ''}`)
-            .then(endpoints => where ? endpoints.filter(where) : endpoints);
+        await this.exec<Endpoint[]>('GET', `/latest/endpoints${groupId ? `?endpointGroupId=${groupId}` : ''}`, null,
+            endpoints => where ? endpoints.filter(where) : endpoints
+        );
 
     /**
      * Attempts to return the endpoint with a given computer name.
@@ -196,13 +210,7 @@ export class EndpointController {
      * @param id the internal EMA ID of the endpoint to retrieve
      */
     getEndpointById = async (id: string): Promise<Endpoint | ErrorResponse> =>
-        await this.exec<Endpoint>('GET', `/latest/endpoints/${id}`)
-            .catch(err => {
-                if (err.response && err.response.status === 404)
-                    return null;
-
-                throw err;
-            });
+        await this.exec<Endpoint>('GET', `/latest/endpoints/${id}`);
     
     /**
      * Attempts to retrieve hardware information for a given endpoint.
@@ -217,5 +225,44 @@ export class EndpointController {
      */
     removeEndpoint = async (id: string): Promise<boolean | ErrorResponse> =>
         await this.exec<boolean>('DELETE', `/latest/endpoints/${id}`);
+
+    /**
+     * Attempts to power on the target endpoint.
+     * @param id the internal EMA ID of the endpoint to power on
+     */
+    powerOn = async (id: string): Promise<NoopResponse | ErrorResponse> =>
+        await this.exec<NoopResponse>('POST', '/latest/endpointOOBOperations/Single/PowerOn', { EndpointId: id })
+
+    /**
+     * Attempts to power off the target endpoint.
+     * 
+     * @param id the internal EMA ID of the endpoint to power off
+     * @param force whether or not to force the power off operation (not supported in some cases)
+     */
+    powerOff = async (id: string, force = false): Promise<NoopResponse | ErrorResponse> =>
+        await this.exec<NoopResponse>('POST', `/latest/endpointOOBOperations/Single/PowerOff/${force ? 'Hard' : 'Soft'}`, { EndpointId: id })
+       
+    /**
+     * Attempts to hibernate the target endpoint.
+     * @param id the internal EMA ID of the endpoint to hibernate
+     */
+    hibernate = async (id: string): Promise<NoopResponse | ErrorResponse> =>
+        await this.exec<NoopResponse>('POST', '/latest/endpointOOBOperations/Single/Hibernate', { EndpointId: id })
+
+    /**
+     * Attempts to invoke a specified sleep mode on a target endpoint.
+     * 
+     * @param id the internal EMA ID of the endpoint to sleep
+     * @param mode the sleep mode to invoke
+     */
+    sleep = async (id: string, mode: 'light' | 'deep'): Promise<NoopResponse | ErrorResponse> =>
+        await this.exec<NoopResponse>('POST', `/latest/endpointOOBOperations/Single/Sleep/${mode}`, { EndpointId: id })
+
+    /**
+     * Attempts to boot the target endpoint to it's BIOS menu.
+     * @param id the internal EMA ID of the endpoint to invoke
+     */
+    bootToBios = async (id: string): Promise<NoopResponse | ErrorResponse> =>
+        await this.exec<NoopResponse>('POST', '/latest/endpointOOBOperations/Single/BootToBios', { EndpointId: id })
 
 }

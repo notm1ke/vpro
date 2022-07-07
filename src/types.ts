@@ -93,6 +93,10 @@ type StorageMediaInfo = {
     MaxMediaSize: number;
 }
 
+export type NoopResponse = {
+    EndpointId: string;
+}
+
 export interface EmaError extends Error {
     code: number;
 }

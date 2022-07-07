@@ -1,5 +1,7 @@
 import { EndpointController, isError } from '../src';
 
+jest.setTimeout(45000);
+
 beforeAll(() => {
     // Report test environment setup to console
     console.log(`Host: ${process.env.EMA_HOST}\n`
@@ -56,27 +58,71 @@ describe('endpoint retrieval', () => {
         await controller.authenticate(true);
         
         let endpoint = await controller.getEndpointById('ABC123');
-        if (isError(endpoint))
-            throw new Error(endpoint.message);
+        if (!isError(endpoint))
+            throw new Error('Expected return of type ErrorResponse');
 
-        expect(endpoint).toBeNull();
+        expect(endpoint).toHaveProperty('message');
     })
 })
 
 describe('endpoint operations (out of band)', () => {
-    test('should power on an endpoint', async () => {
+    test('should power off an endpoint', async () => {
         let controller = new EndpointController(process.env.EMA_HOST, process.env.EMA_USER, process.env.EMA_PASSWORD);
         await controller.authenticate(true);
         
-        let endpoint = await controller.getEndpointByName({ name: 'ABC123' });
+        let endpoints = await controller.getEndpointByName({ name: '244XCS2' });
+        if (isError(endpoints))
+        throw new Error(endpoints.message);
+        
+        if (endpoints.length !== 1)
+        throw new Error('Expected to find 1 endpoint, found ' + endpoints.length);
+        
+        let result = await controller.powerOff(endpoints[0].EndpointId);
+        if (isError(result))
+            throw new Error(result.message);
+
+        expect(result).toEqual({ EndpointId: endpoints[0].EndpointId });
+    })
+
+    test('should power on an endpoint', async () => {    
+        // Wait for shutdown to complete
+        await new Promise(r => setTimeout(r, 10000));
+
+        let controller = new EndpointController(process.env.EMA_HOST, process.env.EMA_USER, process.env.EMA_PASSWORD);
+        await controller.authenticate(true);
+        
+        let endpoint = await controller.getEndpointByName({ name: '244XCS2' });
         if (isError(endpoint))
             throw new Error(endpoint.message);
 
-        // let res = await controller.powerStateOn(endpoint[0].Id);
-        // if (isError(res))
-        //     throw new Error(res.message);
+        if (endpoint.length !== 1)
+            throw new Error('Expected to find 1 endpoint, found ' + endpoint.length);
 
-        // expect(res).toBe(true);
-        throw new Error('not implemented yet');
+        let result = await controller.powerOn(endpoint[0].EndpointId);
+        if (isError(result))
+            throw new Error(result.message);
+
+        expect(result).toEqual({ EndpointId: endpoint[0].EndpointId });
+    })
+
+    test('should hibernate an endpoint', async () => {
+        // Wait for boot to complete
+        await new Promise(r => setTimeout(r, 30000));
+
+        let controller = new EndpointController(process.env.EMA_HOST, process.env.EMA_USER, process.env.EMA_PASSWORD);
+        await controller.authenticate(true);
+        
+        let endpoint = await controller.getEndpointByName({ name: '244XCS2' });
+        if (isError(endpoint))
+            throw new Error(endpoint.message);
+
+        if (endpoint.length !== 1)
+            throw new Error('Expected to find 1 endpoint, found ' + endpoint.length);
+
+        let result = await controller.hibernate(endpoint[0].EndpointId);
+        if (isError(result))
+            throw new Error(result.message);
+
+        expect(result).toEqual({ EndpointId: endpoint[0].EndpointId });
     })
 })
