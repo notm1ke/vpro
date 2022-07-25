@@ -1,11 +1,11 @@
 {
   "name": "vpro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Mike Medved",
   "license": "GPL-3.0",
   "description": "Intel EMA vPro API Wrapper",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
     "prepare": "rm -rf dist && npm run build",
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/notm1ke/vpro#readme",
   "devDependencies": {
     "@types/jest": "^28.1.4",
+    "@types/node": "^18.6.1",
     "jest": "^28.1.2",
     "ts-jest": "^28.0.5",
     "ts-node": "^10.8.1",
