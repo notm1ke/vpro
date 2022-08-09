@@ -5,6 +5,7 @@ import { isError } from './util';
 import { AxiosInstance } from 'axios';
 
 import {
+    AmtSetupResponse,
     ConditionalUrlParams,
     Endpoint,
     EndpointComputerNameFilterOptions,
@@ -265,4 +266,31 @@ export class EndpointController {
     bootToBios = async (id: string): Promise<NoopResponse | ErrorResponse> =>
         await this.exec<NoopResponse>('POST', '/latest/endpointOOBOperations/Single/BootToBios', { EndpointId: id })
 
+    /**
+     * Attempts to provision an EMA endpoint to use
+     * CIRA via the Intel AMT service.
+     * 
+     * @param endpointId the internal EMA ID to provision
+     * @param mebxPassword the password to set for the MEBX BIOS screen
+     * @param intranetSuffix the intranet suffix to use for AMT provisioning
+     * @param useCira [optional, default = true] whether or not to use Cira
+     * @param useEmaAccount [optional, default = true] whether or not to use the EMA account for provisioning
+     * @param useTls [optional, default = true] whether or not to use TLS for provisioning
+     */
+    provisionAmt = async (
+        endpointId: string,
+        mebxPassword: string,
+        intranetSuffix: string,
+        useCira: boolean = true,
+        useEmaAccount: boolean = true,
+        useTls: boolean = true
+    ) => await this.exec<AmtSetupResponse>('POST', '/latest/amtSetups//endpoints/provision', {
+            AdminCredential: { Password: mebxPassword },
+            CiraIntranetSuffix: intranetSuffix,
+            EndpointId: endpointId,
+            SetsRandomMebxPassword: false,
+            UsesCira: useCira,
+            UsesEmaAccount: useEmaAccount,
+            UsesTls: useTls
+        })
 }

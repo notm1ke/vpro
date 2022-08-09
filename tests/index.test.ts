@@ -126,3 +126,23 @@ describe('endpoint operations (out of band)', () => {
         expect(result).toEqual({ EndpointId: endpoint[0].EndpointId });
     })
 })
+
+describe('management operations', () => {
+    test('should provision an partially provisioned endpoint', async () => {
+        let controller = new EndpointController(process.env.EMA_HOST, process.env.EMA_USER, process.env.EMA_PASSWORD);
+        await controller.authenticate(true);
+        
+        let endpoints = await controller.getEndpointByName({ name: '7GKY2Q3' });
+        if (isError(endpoints))
+            throw new Error(endpoints.message);
+
+        if (endpoints.length !== 1)
+            throw new Error('Expected to find 1 endpoint, found ' + endpoints.length);
+
+        let result = await controller.provisionAmt(endpoints[0].EndpointId, process.env.MEBX_PASSWORD, process.env.INTRANET_SUFFIX, true, true, false);
+        if (isError(result))
+            throw new Error(result.message);
+
+        expect(result).toHaveProperty('State');
+    });
+})

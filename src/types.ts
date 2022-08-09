@@ -97,6 +97,46 @@ export type NoopResponse = {
     EndpointId: string;
 }
 
+export type AmtSetupResponse = {
+    AmtSetupId: string;
+    Type: string;
+    PID: string;
+    Creation: string;
+    SetsRandomMebxPassword: boolean;
+    Profile: AmtSetupProfile;
+    State: string;
+    StateString: string;
+    ExtraAmtInfo: AmtSetupExtraInfo;
+    AmtProfileId: number;
+    SetsRandomAdminPassword: boolean;
+}
+
+export type AmtSetupProfile = {
+    UsesTLS: boolean;
+    UsesCIRA: boolean;
+    UsesEmaAccount: boolean;
+    CiraIntranetSuffix: string;
+    AdminPassword: string;
+    MebxPasswordState: string;
+    ProvisionCertificateHash: string;
+    ProvisioningDnsSuffix: string;
+    PPS: string;
+}
+
+export type AmtSetupExtraInfo = {
+    LastUpdated: string;
+    HECIDriver: AmtSetupComponentStatus;
+    CorporateDNS: AmtSetupComponentStatus;
+    CorporateVPN: AmtSetupComponentStatus;
+    IntelNic: AmtSetupComponentStatus;
+}
+
+export type AmtSetupComponentStatus = {
+    Name: string;
+    Status: boolean;
+    Details: string;
+}
+
 export interface EmaError extends Error {
     code: number;
 }
