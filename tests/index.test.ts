@@ -128,11 +128,11 @@ describe('endpoint operations (out of band)', () => {
 })
 
 describe('management operations', () => {
-    test('should provision an partially provisioned endpoint', async () => {
+    test('should provision an partially/non-provisioned endpoint', async () => {
         let controller = new EndpointController(process.env.EMA_HOST, process.env.EMA_USER, process.env.EMA_PASSWORD);
         await controller.authenticate(true);
         
-        let endpoints = await controller.getEndpointByName({ name: '7GKY2Q3' });
+        let endpoints = await controller.getEndpointByName({ name: 'GMCJKQ3' });
         if (isError(endpoints))
             throw new Error(endpoints.message);
 
@@ -140,6 +140,24 @@ describe('management operations', () => {
             throw new Error('Expected to find 1 endpoint, found ' + endpoints.length);
 
         let result = await controller.provisionAmt(endpoints[0].EndpointId, process.env.MEBX_PASSWORD, process.env.INTRANET_SUFFIX, true, true, false);
+        if (isError(result))
+            throw new Error(result.message);
+
+        expect(result).toHaveProperty('State');
+    });
+
+    test('should check if an endpoint is fully provisioned', async () => {
+        let controller = new EndpointController(process.env.EMA_HOST, process.env.EMA_USER, process.env.EMA_PASSWORD);
+        await controller.authenticate(true);
+        
+        let endpoints = await controller.getEndpointByName({ name: 'GMCJKQ3' });
+        if (isError(endpoints))
+            throw new Error(endpoints.message);
+
+        if (endpoints.length !== 1)
+            throw new Error('Expected to find 1 endpoint, found ' + endpoints.length);
+
+        let result = await controller.getAmtProfile(endpoints[0].EndpointId);
         if (isError(result))
             throw new Error(result.message);
 

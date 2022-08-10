@@ -37,12 +37,21 @@ export class EndpointController {
      * [View more information about permissions in the Intel Docs](https://www.intel.com/content/dam/support/us/en/documents/software/manageability-products/intel-ema-api-guide.pdf)
      * 
      * @example
-     * let controller = new EndpointController({
-     *     username: process.env.EMA_USERNAME,
-     *     password: process.env.EMA_PASSWORD,
-     * });
+     * // Instantiate the controller with your options
+     * let controller = new EndpointController(
+     *     'https://ema.domain.com',
+     *     'tenantadmin@domain.com',
+     *     'some-super-secret-password',
+     * );
      * 
-     * controller.authenticate(domainCredentials?, grantType?);
+     * // Authenticate with the EMA server
+     * let auth = await controller.authenticate(domainCredentials?, grantType?);
+     * if (isError(auth))
+     *    throw new Error(auth.message);
+     * 
+     * // Use the controller to perform operations on endpoints
+     * let endpoints = await controller.getEndpoints({ where: endpoint => ... });
+     * ...
      * 
      * @param hostUrl the host url of the Intel EMA installation
      * @param username the username of the user to authenticate
@@ -200,6 +209,17 @@ export class EndpointController {
                 computerNameStartsWith: startsWith
             }
         ));
+
+    /**
+     * Attempts to retrieve the AMT setup profile for a given endpoint.
+     * 
+     * @apiNote This is used to see if a machine is fully provisioned
+     * (or atleast in the process of being fully provisioned) for AMT.
+     * 
+     * @param endpointId the ID of the endpoint to retrieve
+     */
+    getAmtProfile = async (endpointId: string): Promise<AmtSetupResponse | ErrorResponse> =>
+        await this.exec<AmtSetupResponse>('GET', `/latest/amtSetups/endpoints/${endpointId}`);
 
     /**
      * Attempts to retrieve an endpoint with a given ID.
