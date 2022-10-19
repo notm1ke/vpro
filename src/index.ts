@@ -277,8 +277,8 @@ export class EndpointController {
      * Attempts to retrieve members of a given EMA user group.
      * @param groupId the user group to retrieve
      */
-    getUserGroupMembership = async (groupId: number): Promise<EmaUserGroupMembers[] | ErrorResponse> =>
-        await this.exec<EmaUserGroupMembers[]>('GET', `/latest/userGroupMemberships/${groupId}`);
+    getUserGroupMembership = async (groupId: number): Promise<EmaUserGroupMembers | ErrorResponse> =>
+        await this.exec<EmaUserGroupMembers>('GET', `/latest/userGroupMemberships/${groupId}`);
 
     /**
      * Attempts to retrieve an endpoint with a given ID.
