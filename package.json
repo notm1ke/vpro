@@ -1,6 +1,6 @@
 {
   "name": "vpro",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Mike Medved",
   "license": "GPL-3.0",
   "description": "Intel EMA vPro API Wrapper",

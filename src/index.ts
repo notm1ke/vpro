@@ -7,6 +7,10 @@ import { AxiosInstance } from 'axios';
 import {
     AmtSetupResponse,
     ConditionalUrlParams,
+    EmaTenant,
+    EmaUser,
+    EmaUserGroup,
+    EmaUserGroupMembers,
     Endpoint,
     EndpointComputerNameFilterOptions,
     EndpointFilterOptions,
@@ -220,6 +224,61 @@ export class EndpointController {
      */
     getAmtProfile = async (endpointId: string): Promise<AmtSetupResponse | ErrorResponse> =>
         await this.exec<AmtSetupResponse>('GET', `/latest/amtSetups/endpoints/${endpointId}`);
+
+    /**
+     * Attempts to retrieve all EMA tenants for a given EMA host.
+     */
+    getEmaTenants = async (): Promise<EmaTenant[] | ErrorResponse> =>
+        await this.exec<EmaTenant[]>('GET', '/latest/tenants');
+
+    /**
+     * Attempts to retrieve information about an EMA tenant
+     * given it's tenant ID.
+     * 
+     * @param tenantId the ID of the tenant to retrieve
+     */
+    getEmaTenant = async (tenantId: string): Promise<EmaTenant | ErrorResponse> =>
+        await this.exec<EmaTenant>('GET', `/latest/tenants/${tenantId}`);
+
+    /**
+     * Attempts to retrieve all EMA users for a given EMA host.
+     */
+    getEmaUsers = async (): Promise<EmaUser[] | ErrorResponse> =>
+        await this.exec<EmaUser[]>('GET', '/latest/users');
+
+    /**
+     * Attempts to retrieve an EMA user given their user ID.
+     * @param userId the ID of the user to retrieve
+     */
+    getEmaUser = async (userId: string): Promise<EmaUser | ErrorResponse> =>
+        await this.exec<EmaUser>('GET', `/latest/users/${userId}`);
+
+    /**
+     * Attempts to retrieve an EMA user given their username.
+     * @param username the username of the user to retrieve
+     */
+    getEmaUserByName = async (username: string): Promise<EmaUser | ErrorResponse> =>
+        await this.exec<EmaUser>('GET', `/latest/users/getUserByName?username=${username}`);
+    
+    /**
+     * Attempts to retrieve all EMA groups for a given EMA host.
+     */
+    getEmaUserGroups = async (): Promise<EmaUserGroup[] | ErrorResponse> =>
+        await this.exec<EmaUserGroup[]>('GET', '/latest/userGroups');
+
+    /**
+     * Attempts to retrieve an EMA user group by it's group ID.
+     * @param groupId the ID of the user group to retrieve
+     */
+    getEmaUserGroup = async (groupId: string): Promise<EmaUserGroup | ErrorResponse> =>
+        await this.exec<EmaUserGroup>('GET', `/latest/userGroups/${groupId}`);
+
+    /**
+     * Attempts to retrieve members of a given EMA user group.
+     * @param groupId the user group to retrieve
+     */
+    getUserGroupMembership = async (groupId: string): Promise<EmaUserGroupMembers[] | ErrorResponse> =>
+        await this.exec<EmaUserGroupMembers[]>('GET', `/latest/userGroupMemberships/${groupId}`);
 
     /**
      * Attempts to retrieve an endpoint with a given ID.

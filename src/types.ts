@@ -166,3 +166,43 @@ export type EndpointComputerNameFilterOptions = {
     contains?: string;
     startsWith?: string;
 }
+
+export type EmaTenant = {
+    CreatedBy: string;
+    CreatedOn: string;
+    TenantId: string;
+    ModifiedBy: string;
+    ModifiedOn: string;
+    Description: string;
+    Name: string;
+}
+
+export type EmaUser = {
+    UserId: string;
+    Username: string;
+    Enabled: boolean;
+    TenantId: string;
+    Description: string;
+    RoleId: number;
+    SysRole: string;
+}
+
+export type EmaUserGroup = {
+    UserGroupId: number;
+    Name: string;
+    TenantId: string;
+    Description: string;
+    CreatedOn: string;
+    CreatedBy: string;
+    ModifiedOn: string;
+    ModifiedBy: string;
+    RoleId: number;
+    AccessRightsId: string;
+    AccessRights: string;
+}
+
+export type EmaUserGroupMembership = {
+    UserName: string;
+}
+
+export type EmaUserGroupMembers = EmaUserGroupMembership[];
