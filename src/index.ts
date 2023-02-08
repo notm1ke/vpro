@@ -279,8 +279,8 @@ export class EndpointController {
      * Attempts to retrieve members of a given EMA user group.
      * @param groupId the user group to retrieve
      */
-    getUserGroupMembership = async (groupId: number): Promise<EmaUserGroupMembers | ErrorResponse> =>
-        await this.exec<EmaUserGroupMembers>('GET', `/latest/userGroupMemberships/${groupId}`);
+    getUserGroupMembership = async (groupId: number): Promise<EmaUserGroupMembers[] | ErrorResponse> =>
+        await this.exec<EmaUserGroupMembers[]>('GET', `/latest/userGroupMemberships/${groupId}`);
 
     /**
      * Attempts to add some users to
@@ -289,7 +289,7 @@ export class EndpointController {
      * @param groupId the ID of the user group
      * @param userNames an array of usernames to add
      */
-    addUserToGroup = async (groupId: string, ...userNames: string[]): Promise<EmaUserGroupMembers | ErrorResponse> =>
+    addUserToGroup = async (groupId: number, ...userNames: string[]): Promise<EmaUserGroupMembers | ErrorResponse> =>
         await this.exec<EmaUserGroupMembers>('POST', `/latest/userGroupMemberships/${groupId}/addMembers`, userNames.map(UserName => ({ UserName })));
 
     /**
@@ -298,7 +298,7 @@ export class EndpointController {
      * @param groupId the ID of the user group
      * @param userNames an array of usernames to remove
      */
-    removeUserFromGroup = async (groupId: string, ...userNames: string[]): Promise<EmaUserGroupMembers | ErrorResponse> =>
+    removeUserFromGroup = async (groupId: number, ...userNames: string[]): Promise<EmaUserGroupMembers | ErrorResponse> =>
         await this.exec<EmaUserGroupMembers>('POST', `/latest/userGroupMemberships/${groupId}/removeMembers`, userNames.map(UserName => ({ UserName })));
 
     /**
