@@ -24,6 +24,7 @@ import {
     RequireOne
 } from './types';
 
+export * from './types';
 export * from './util';
 
 export class EndpointController {
