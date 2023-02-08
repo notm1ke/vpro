@@ -8,7 +8,9 @@ import {
     AmtSetupResponse,
     ConditionalUrlParams,
     EmaTenant,
+    EmaUpdateSysRoleOptions,
     EmaUser,
+    EmaUserCreateOptions,
     EmaUserGroup,
     EmaUserGroupMembers,
     Endpoint,
@@ -167,7 +169,7 @@ export class EndpointController {
 
                 // If the error is an Axios error, return the response error body
                 if (err.response) {
-                    let data = JSON.parse(err.response.data.Message);
+                    let data = err.response.data;
                     let code = data.ExtendedCode ?? data.Code ?? err.response.status;
                     return { code, message: data.ExtendedMessage ?? data.Message ?? err.response.statusText };
                 }
@@ -281,6 +283,41 @@ export class EndpointController {
         await this.exec<EmaUserGroupMembers[]>('GET', `/latest/userGroupMemberships/${groupId}`);
 
     /**
+     * Attempts to add some users to
+     * the specified EMA user group.
+     * 
+     * @param groupId the ID of the user group
+     * @param userNames an array of usernames to add
+     */
+    addUserToGroup = async (groupId: string, ...userNames: string[]): Promise<EmaUserGroupMembers | ErrorResponse> =>
+        await this.exec<EmaUserGroupMembers>('POST', `/latest/userGroupMemberships/${groupId}/addMembers`, userNames.map(UserName => ({ UserName })));
+
+    /**
+     * Attempts to remove some users from
+     * the specified EMA user group.
+     * @param groupId the ID of the user group
+     * @param userNames an array of usernames to remove
+     */
+    removeUserFromGroup = async (groupId: string, ...userNames: string[]): Promise<EmaUserGroupMembers | ErrorResponse> =>
+        await this.exec<EmaUserGroupMembers>('POST', `/latest/userGroupMemberships/${groupId}/removeMembers`, userNames.map(UserName => ({ UserName })));
+
+    /**
+     * Attempts to create a new EMA user with the
+     * provided creation options.
+     * 
+     * @param options the options to use when creating a new user
+     */
+    createUser = async (options: EmaUserCreateOptions): Promise<EmaUser | ErrorResponse> =>
+        await this.exec<EmaUser>('POST', '/latest/users', { ...options });
+
+    /**
+     * Attempts to update a user's system role.
+     * @param options the options to use when updating a user's system role
+     */
+    updateUserRole = (options: EmaUpdateSysRoleOptions): Promise<EmaUser | ErrorResponse> => 
+        this.exec<EmaUser>('PUT', `/latest/users/${options.UserId}`, { ...options });
+
+    /**
      * Attempts to retrieve an endpoint with a given ID.
      * 
      * Note, this ID corresponds to the internal ID that Intel EMA
@@ -363,7 +400,7 @@ export class EndpointController {
         useCira: boolean = true,
         useEmaAccount: boolean = true,
         useTls: boolean = true
-    ) => await this.exec<AmtSetupResponse>('POST', '/latest/amtSetups//endpoints/provision', {
+    ) => await this.exec<AmtSetupResponse>('POST', '/latest/amtSetups/endpoints/provision', {
             AdminCredential: { Password: mebxPassword },
             CiraIntranetSuffix: intranetSuffix,
             EndpointId: endpointId,

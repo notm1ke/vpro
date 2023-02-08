@@ -1,6 +1,6 @@
 import { ErrorResponse } from './types';
 
-export const isError = <T>(value: T | ErrorResponse): value is ErrorResponse => {
+export const isError = <T extends object>(value: T | ErrorResponse): value is ErrorResponse => {
     if (!value)
         return false;
 

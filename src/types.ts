@@ -206,3 +206,24 @@ export type EmaUserGroupMembership = {
 }
 
 export type EmaUserGroupMembers = EmaUserGroupMembership[];
+
+export type EmaUserCreateOptions = {
+    UserId?: string;
+    Username: string;
+    Enabled: boolean;
+    TenantId: string;
+    Description: string;
+    Password?: string;
+    RoleId: number;
+}
+
+export type EmaUpdateSysRoleOptions = {
+    UserId: string;
+    TenantId: string;
+    SysRole: 'none'
+            | 'globalAdministrator'
+            | 'tenantAdministrator'
+            | 'accountManager'
+            | 'endpointGroupsCreator'
+            | 'endpointGroupsUser';
+}
