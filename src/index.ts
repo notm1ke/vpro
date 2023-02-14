@@ -361,6 +361,13 @@ export class EndpointController {
         await this.exec<NoopResponse>('POST', `/latest/endpointOOBOperations/Single/PowerOff/${force ? 'Hard' : 'Soft'}`, { EndpointId: id })
        
     /**
+     * Attempts to reboot the target endpoints.
+     * @param id the internal EMA IDs of the endpoints to reboot
+     */
+    reboot = async (...ids: string[]): Promise<NoopResponse | ErrorResponse> =>
+        await this.exec<NoopResponse>('POST', '/latest/endpointIBOperations/reboot', ids.map(id => ({ EndpointId: id })))
+
+    /**
      * Attempts to hibernate the target endpoint.
      * @param id the internal EMA ID of the endpoint to hibernate
      */
