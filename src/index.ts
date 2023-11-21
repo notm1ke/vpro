@@ -352,6 +352,13 @@ export class EndpointController {
         await this.exec<NoopResponse>('POST', '/latest/endpointOOBOperations/Single/PowerOn', { EndpointId: id })
 
     /**
+     * Attempts to power on the target endpoints.
+     * @param id the internal EMA IDs of the endpoints to power on
+     */
+    powerOnMulti = async (ids: string[]): Promise<NoopResponse | ErrorResponse> =>
+        await this.exec<NoopResponse>('POST', '/latest/endpointOOBOperations/Multiple/PowerOn', ids.map(id => ({ endpointId: id })));
+
+    /**
      * Attempts to power off the target endpoint.
      * 
      * @param id the internal EMA ID of the endpoint to power off
